@@ -1,117 +1,122 @@
 import requests
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+import pickle
 import time
-import json
-from typing import Dict, Optional
-import logging
 from bs4 import BeautifulSoup
-from http.cookies import SimpleCookie
-import pytesseract
-from PIL import Image
-import os
-
 import ddddocr
 
-
-    
-word = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0987654321".replace('' , ' ')[1:-1]
-word = word.split(' ')
-# print(f'word= {word}')
-url = 'https://ais.ntou.edu.tw/MainFrame.aspx'
 head = {
-    "Cookie":"ASP.NET_SessionId=10bqlkxsnce20ne1geqvu0cq; f5-ltm=!H0jGCPG4B8UkCDIpErpzwHvgcas10caFkSMh1JPHqzX6f11CcMHlV8B5S0B2fVmaPYgg3FaM7X9/K2k=; .ASPXAUTH=1810B75BD430B6F6BFF0BC3DC80C23C1565E34660D0FEAB9B87D4179A2CBC39CBAF11ECDD2A25BE7E00371D25BFF4D71CB65A5B8CA537D64B2EE919FAA8FD05813878FEEEEF37A5C4C04180F9E7712C8844F4C129948EC1D7853788BA290F342D3D7132DB6F65420796C60CD5BCA7067E40BB128; TS01a306fb=01c1994270eff9676afce4902f1a08f49d1be7f88b7cd4ad114af24c11879ee56234719392249b8dff521461799279b35ed7e9e4e91a0aeda433154f430265243282c08f8a100002107aed9baf409fc32a51dfdfc7be1a365091b9c02fdd1227a20c879820",
     "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 }
+
 def download_img(filename , href):
     img = requests.get(href, headers=head)
     with open(filename , 'wb') as file:
         file.write(img.content)
+import json
+
+def save_cookies_to_file(session, filename):
+    with open(filename, 'w') as file:
+        json.dump(session.cookies.get_dict(), file)
+
+def load_cookies_from_file(session, filename):
+    with open(filename, 'r') as file:
+        cookies = json.load(file)
+        session.cookies.update(cookies)
+
+def login_to_website(base_url, login_path, username, password):
+    """
+    使用爬蟲模擬登錄網站。
+    :param base_url: 網站的基礎 URL，例如 "https://example.com"
+    :param login_path: 登錄的 URL 路徑，例如 "/login"
+    :param username: 登錄帳號
+    :param password: 登錄密碼
+    """
+
+    # 建立一個 session 以保留 Cookies
+    # session = requests.Session()
+    session = requests.Session()
+    load_cookies_from_file(session, "cookies.json")
+    a = '/WebResource.axd?d=tBmHPwqt5FZ_fz9Akc9MrJaFgPQJw412uICKlLfoMPw5ZrxpqET-qokPkZQzXaX0TRBPEoHZ1qqa_0aDlJfku8zi6zw1&t=63856889274506778'
+    b = '/ScriptResource.axd?d=DqBaCMv3HvhEO-U4ESLWYrZY2mo5nHKEJCDb9act8CeFzbCFI-fn1K4WuIYtI9_0UdMgER1Mo_hMrd_To1Kn0rt86dZIhkyUS4g-5tPddT8ffK6pFZEDiZWRklKEMLZw543VA9IzOuleFA0RBs-12WCHZeBoE4zTfHKfx74RVzy3jLlJa9MpsZjkhzhhdixsDILUiQ2&t=ffffffffc820c39'
+    c = '/ScriptResource.axd?d=v24Q6AfOjuOjn_zfhYrZXqSw3ofXPBtdRu-6fHzA47xb43Ei2VMZiLw3FpCj7aZK7GcyFY_RzHpi5zFofZfvoghQKf1GsmJAElyP1-Dup0UxbuoZB3In_VFJTM0mHlI5zwl36lrHPMYZaK_F9pwvOol4Si4UQ7cfKYgVgQf1SYfBBAef0&t=ffffffffc820c39'
+    d = '/ScriptResource.axd?d=1iwX_N96F-GE2OSWzmJueu4xawlIvxaYJkz5_lyAK0DgAJ2tOakpmh_iZS1wUHtwGuM7QVIcuI_6zcxr0AaJUp12YDW9AKW-7CM7wzh8TJM4yO0IFwzei0Tzr5Jbc7kQ4KeM_82VLjgLR77gQ631TYjIAC2y59hBxAIwS2iUC-swE4AN0&t=ffffffffc820c39'
+    e = '/script/DateUtil.js'
+
+    # Step 1: 取得登入頁面，並抓取 CSRF token（如需要）
+    save_cookies_to_file(session, "cookies.json")
+    return session
+    # while 1:
+    #     response = requests.get(base_url+login_path, headers=head , cookies=session.cookies)
+    #     while len(response.text) <= 200:
+    #         # session = requests.Session()
+    #         # Step 1: 取得登入頁面，並抓取 CSRF token（如需要）
+    #         response = requests.get(base_url + login_path ,headers=head , cookies=session.cookies)
+
+    #     soup = BeautifulSoup(response.text, 'html.parser')
+    #     img = soup.find_all('img' , id ="importantImg")
+    #     print(img)
+    #     link = img[0].get('src')
+    #     if link != None:
+    #         break
+    # link = base_url + link
+    # download_img("CatchaImage.png" , link)
+    # # 假設 CSRF token 在 `<input name="csrf_token" value="...">` 中
+    # # csrf_token = soup.find("input", {"name": "csrf_token"})["value"] if soup.find("input", {"name": "csrf_token"}) else None
+    # ocr = ddddocr.DdddOcr(beta=True)  # 切换为第二套ocr模型
+    # image = open("CatchaImage.png", "rb").read()
+    # csrf_token = ocr.classification(image)
+    # csrf_token = csrf_token.upper()
+    # print(csrf_token)
 
 
-def main():
-    # 使用示例
-    # login_handler = WebLogin()
+    # # Step 2: 模擬登錄表單提交
+    # login_payload = {
+    #     "M_PORTAL_LOGIN_ACNT": username,
+    #     "M_PW": password,
+    #     "M_PW2": csrf_token,  # 如果有 token，則添加
+    # }
 
-    # while True:
-    while True:
-        response = requests.get(url=url , headers=head)
-        if len(response.text) <= 200:
-            continue
-        else:
-            break
-    
-    # response = requests.get('https://ais.ntou.edu.tw/Application/TKE/TKE22/TKE2240_.aspx?progcd=STU1220',headers=head)
-    # response = requests.get('https://ais.ntou.edu.tw/Css/RWDCss/remixicon/remixicon.woff2?t=1708865856766',headers=head)
-    response = requests.get(url='https://ais.ntou.edu.tw/Application/TKE/TKE22/TKE2240_01.aspx',headers=head)
-    soup = BeautifulSoup(response.text , "html.parser")
-    print(soup)
-    table = soup.find_all('table')
-    print(table)
-    
-# user = browser.find_element_by_id('ctl00_Login1_UserName')
-# passwd = browser.find_element_by_id('ctl00_Login1_Password')
-# vcode=browser.find_element_by_id('ctl00_Login1_vcode')
+    # login_response = session.post(login_url, data=login_payload, headers=head)
+    # # print(login_response)
+    # login_response = session.get("https://ais.ntou.edu.tw/MainFrame.aspx")
 
+    # if login_response.status_code == 200 and "Dashboard" in login_response.text:
+    #     print("登錄成功！")
+    #     return session  # 返回已登錄的 session
+    # else:
+    #     print("登錄失敗！")
+    #     return None
 
-# userid='這裡改成你的帳號'
-# userpw='這裡改成你的密碼'
-# user.send_keys(userid)
-# passwd.send_keys(userpw)
-# vcode.send_keys(res)
+def access_protected_page(session, protected_path, base_url):
+    """
+    使用已登錄的 session 訪問受保護的頁面。
+    :param session: 已登錄的 requests.Session
+    :param protected_path: 受保護頁面的路徑，例如 "/dashboard"
+    :param base_url: 網站的基礎 URL
+    """
+    protected_url = base_url + protected_path
+    response = session.get(protected_url)
 
+    if response.status_code == 200:
+        print(f"成功訪問受保護頁面：{base_url+protected_path}")
+        response = BeautifulSoup(response.text , "html.parser")	
+        print(response)  # 顯示前 500 字元
+        return
+    else:
+        print(f"無法訪問受保護頁面，狀態碼：{response.status_code}")
 
+# 使用範例
+if __name__ == "__main__":
+    base_url = "https://ais.ntou.edu.tw"  # 更改為目標網站的主 URL
+    login_path = "/Default.aspx"            # 更改為登入頁面的路徑
+    protected_path = "/MainFrame.aspx"    # 更改為受保護頁面的路徑
+    username = "01257049"       # 替換為實際帳號
+    password = "Jihuty940123"       # 替換為實際密碼
 
-#         img = soup.find_all('img' , id='importantImg')
-#         print(img)
-#         link = img[0].get('src')
-#         if(link is None):
-#             continue
-#         link = "https://ais.ntou.edu.tw/MainFrame.aspx" + link
-#         filename = 'CatchaImage.png'
-#         download_img( filename , link)
-#         image = Image.open('CatchaImage.png')
-#         result = pytesseract.image_to_string(image)
-#         result = result[-4:]
-#         ocr = ddddocr.DdddOcr()
+    # 執行登錄
+    session = login_to_website(base_url, login_path, username, password)
 
-#         image = open("CatchaImage.png", "rb").read()
-#         result = ocr.classification(image)
-#         print(result)
-#         if len(result) == 4 and result[0] in word and result[1] in word and result[2] in word and result[3] in word:
-#             break
-#         else:
-#             continue
-    
-#     print(result)
-    
-#     # 使用 requests 方式登錄
-#     login_success = login_handler.requests_login(
-#         login_url=url,
-#         M_PORTAL_LOGIN_ACNT='01257049',
-#         M_PW='Jihuty940123',
-#         M_PW2={'Check': f'{result}'}
-#     )
-        
-#     if login_success:
-#         # 保存 cookies
-#         login_handler.save_cookies('cookies.json')
-        
-#         # 檢查登錄狀態
-#         is_logged_in = login_handler.check_login_status('https://ais.ntou.edu.tw/Default.aspx')
-#         print(f'登錄狀態: {"已登錄" if is_logged_in else "未登錄"}')
-    
-#     # 使用 Selenium 方式登錄
-#     selenium_success = login_handler.selenium_login(
-#         login_url=url,
-#         M_PORTAL_LOGIN_ACNT='01257049',
-#         M_PW='Jihuty940123'
-#     )
-    
-#     if selenium_success:
-#         print('Selenium 登錄成功')
-
-if __name__ == '__main__':
-    main()
+    # 若登錄成功，訪問受保護的頁面
+    if session:
+        access_protected_page(session, protected_path, base_url)
+        course_list_url = '/Application/TKE/TKE22/TKE2240_.aspx?progcd=STU1220'
