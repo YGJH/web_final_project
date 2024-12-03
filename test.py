@@ -110,8 +110,8 @@ if __name__ == "__main__":
     base_url = "https://ais.ntou.edu.tw"  # 更改為目標網站的主 URL
     login_path = "/Default.aspx"            # 更改為登入頁面的路徑
     protected_path = "/MainFrame.aspx"    # 更改為受保護頁面的路徑
-    username = "01257049"       # 替換為實際帳號
-    password = "Jihuty940123"       # 替換為實際密碼
+    username = "123123"       # 替換為實際帳號
+    password = "123123"       # 替換為實際密碼
 
     # 執行登錄
     session = login_to_website(base_url, login_path, username, password)
