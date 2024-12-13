@@ -1,9 +1,10 @@
+
 window.onload = function() {
     lucide.createIcons();
 
     const menuButton = document.getElementById('menu-button');
     const popupMenu = document.getElementById('popup-menu');
-
+    
     menuButton.addEventListener('click', () => {
         popupMenu.classList.toggle('hidden');
     });
@@ -15,19 +16,14 @@ window.onload = function() {
         }
     });
 
-    const apiUrl = 'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWA-EBC821F3-9782-4630-8E87-87FF25933C15&format=JSON&sort=time';
-    const selectedCityWeatherDiv = document.getElementById('selected-city-weather');
-    let locations = [];
+    const apiUrl = 'https://backend-bb-1af6d7085259.herokuapp.com';
 
     // 取得天氣資料
     fetch(apiUrl)
-        .then((response) => {return response.json()})
+        .then((response) =>  response.json())
         .then(data => {
             console.log(data);
             locations = data.records.location;
-            // 這裡可以移除先前填充下拉選單的代碼
-
-            // 其他已有的程式碼
 
             // 取得所有城市按鈕
             const cityButtons = document.querySelectorAll('.city-button');
@@ -40,6 +36,8 @@ window.onload = function() {
                     displayWeatherInfo(cityName, locations, selectedCityWeatherDiv);
                     // 關閉選單
                     popupMenu.classList.add('hidden');
+                    // 顯示接收到的城市名稱
+                    console.log(`接收到的城市名稱: ${cityName}`);
                 });
             });
         })
