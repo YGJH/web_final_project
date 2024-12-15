@@ -32,7 +32,8 @@ window.onload = function() {
   // 定義取得並顯示天氣資訊的函式
   async function fetchWeatherInfo(cityName) {
     try {
-        const apiUrl = `http://localhost:3000/weather?city=${encodeURIComponent(cityName)}`;
+        const apiUrl = `https://backend-bb-1af6d7085259.herokuapp.com/weather?city=${encodeURIComponent(cityName)}`;
+        // const apiUrl = `http://localhost:3000/weather?city=${encodeURIComponent(cityName)}`;
         $('#board').html('<p class="info">正在取得天氣資訊...</p>');
 
         const data = await $.post(apiUrl, 
